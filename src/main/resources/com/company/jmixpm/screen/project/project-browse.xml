@@ -12,12 +12,37 @@
             <loader id="projectsDl">
                 <query>
                     <![CDATA[select e from Project e]]>
+                    <condition>
+                        <and>
+                            <c:jpql>
+                                <c:where>e.name like :name</c:where>
+                            </c:jpql>
+                        </and>
+                    </condition>
+                </query>
+            </loader>
+        </collection>
+        <collection id="tasksDc" class="com.company.jmixpm.entity.Task">
+            <fetchPlan extends="_base">
+                <property name="project" fetchPlan="_instance_name"/>
+            </fetchPlan>
+            <loader id="tasksDl">
+                <query>
+                    <![CDATA[select e from Task_ e where e.project = :project]]>
                 </query>
             </loader>
         </collection>
     </data>
     <facets>
-        <dataLoadCoordinator auto="true"/>
+        <dataLoadCoordinator>
+            <refresh loader="projectsDl">
+                <onScreenEvent type="BeforeShow"/>
+                <onComponentValueChanged component="nameField" param="name" likeClause="CASE_INSENSITIVE"/>
+            </refresh>
+            <refresh loader="tasksDl">
+                <onContainerItemChanged container="projectsDc"/>
+            </refresh>
+        </dataLoadCoordinator>
         <screenSettings id="settingsFacet" auto="true"/>
     </facets>
     <actions>
@@ -32,33 +57,61 @@
     </actions>
     <dialogMode height="600"
                 width="800"/>
-    <layout expand="projectsTable" spacing="true">
-        <filter id="filter"
-                dataLoader="projectsDl">
-            <properties include=".*"/>
-        </filter>
-        <groupTable id="projectsTable"
-                    width="100%"
-                    dataContainer="projectsDc">
-            <actions>
-                <action id="create" type="create"/>
-                <action id="edit" type="edit"/>
-                <action id="remove" type="remove"/>
-            </actions>
-            <columns>
-                <column id="name"/>
-                <column id="startDate"/>
-                <column id="endDate"/>
-                <column id="manager"/>
-            </columns>
-            <simplePagination/>
-            <buttonsPanel id="buttonsPanel"
-                          alwaysVisible="true">
-                <button id="createBtn" action="projectsTable.create"/>
-                <button id="editBtn" action="projectsTable.edit"/>
-                <button id="removeBtn" action="projectsTable.remove"/>
-            </buttonsPanel>
-        </groupTable>
+    <layout expand="detailSplit" spacing="true">
+        <split id="detailSplit" width="100%" orientation="horizontal">
+            <vbox expand="projectsTable"
+                  spacing="true"
+                  margin="true"
+                  height="100%"
+                  width="100%">
+<!--                <filter id="filter"-->
+<!--                        dataLoader="projectsDl">-->
+<!--                    <properties include=".*"/>-->
+<!--                </filter>-->
+                <hbox id="filterBox" spacing="true">
+                    <label value="Project name" align="MIDDLE_LEFT"/>
+                    <textField id="nameField"/>
+                </hbox>
+                <groupTable id="projectsTable"
+                            width="100%"
+                            dataContainer="projectsDc">
+                    <actions>
+                        <action id="create" type="create"/>
+                        <action id="edit" type="edit"/>
+                        <action id="remove" type="remove"/>
+                    </actions>
+                    <columns>
+                        <column id="name"/>
+                        <column id="startDate"/>
+                        <column id="endDate"/>
+                        <column id="manager"/>
+                    </columns>
+                    <simplePagination/>
+                    <buttonsPanel id="buttonsPanel"
+                                  alwaysVisible="true">
+                        <button id="createBtn" action="projectsTable.create"/>
+                        <button id="editBtn" action="projectsTable.edit"/>
+                        <button id="removeBtn" action="projectsTable.remove"/>
+                    </buttonsPanel>
+                </groupTable>
+            </vbox>
+            <vbox expand="tasksTable"
+                  margin="true"
+                  width="100%"
+                  height="100%">
+                <table id="tasksTable"
+                       dataContainer="tasksDc"
+                       width="100%">
+                    <columns>
+                        <column id="name"/>
+                        <column id="startDate"/>
+                        <column id="estimatedEfforts"/>
+                        <column id="project"/>
+                    </columns>
+                </table>
+            </vbox>
+        </split>
+
         <hbox id="lookupActions" spacing="true" visible="false">
             <button action="lookupSelectAction"/>
             <button action="lookupCancelAction"/>

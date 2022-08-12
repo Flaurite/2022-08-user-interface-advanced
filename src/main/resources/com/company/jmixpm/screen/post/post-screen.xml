@@ -8,6 +8,9 @@
         </collection>
     </data>
     <facets>
+        <screen id="userInfoScreen"
+                onAction="postsTable.viewUserInfo"
+                screenId="UserInfoScreen"/>
         <dataLoadCoordinator auto="true"/>
     </facets>
     <layout expand="postsTable" spacing="true">

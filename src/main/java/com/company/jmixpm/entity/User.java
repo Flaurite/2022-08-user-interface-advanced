@@ -2,6 +2,7 @@ package com.company.jmixpm.entity;
 
 import io.jmix.core.HasTimeZone;
 import io.jmix.core.annotation.Secret;
+import io.jmix.core.entity.annotation.EmbeddedParameters;
 import io.jmix.core.entity.annotation.JmixGeneratedValue;
 import io.jmix.core.entity.annotation.SystemLevel;
 import io.jmix.core.metamodel.annotation.DependsOnProperties;
@@ -9,6 +10,7 @@ import io.jmix.core.metamodel.annotation.InstanceName;
 import io.jmix.core.metamodel.annotation.JmixEntity;
 import io.jmix.security.authentication.JmixUserDetails;
 import org.springframework.security.core.GrantedAuthority;
+
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import java.util.Collection;
@@ -23,9 +25,20 @@ import java.util.UUID;
 public class User implements JmixUserDetails, HasTimeZone {
 
     @Id
-    @Column(name = "ID")
+    @Column(name = "ID", nullable = false)
     @JmixGeneratedValue
     private UUID id;
+
+    @EmbeddedParameters(nullAllowed = false)
+    @Embedded
+    @AssociationOverrides({
+            @AssociationOverride(name = "city", joinColumns = @JoinColumn(name = "ADDRESS_CITY_ID"))
+    })
+    @AttributeOverrides({
+            @AttributeOverride(name = "street", column = @Column(name = "ADDRESS_STREET")),
+            @AttributeOverride(name = "zipCode", column = @Column(name = "ADDRESS_ZIP_CODE"))
+    })
+    private Address address;
 
     @Version
     @Column(name = "VERSION", nullable = false)
@@ -57,6 +70,14 @@ public class User implements JmixUserDetails, HasTimeZone {
 
     @Transient
     protected Collection<? extends GrantedAuthority> authorities;
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
 
     public UUID getId() {
         return id;

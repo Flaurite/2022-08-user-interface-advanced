@@ -33,6 +33,16 @@ public class PostScreen extends Screen {
     @Autowired
     private ScreenBuilders screenBuilders;
 
+    @Install(to = "userInfoScreen", subject = "screenConfigurer")
+    private void userInfoScreenScreenConfigurer(UserInfoScreen userInfoScreen) {
+        Post post = postsTable.getSingleSelected();
+        if (post == null || post.getUserId() == null) {
+            return;
+        }
+
+        userInfoScreen.withUserId(post.getUserId());
+    }
+
     @Install(to = "postsDl", target = Target.DATA_LOADER)
     private List<Post> postsDlLoadDelegate(LoadContext<Post> loadContext) {
         Post[] posts =
@@ -42,7 +52,7 @@ public class PostScreen extends Screen {
         return Arrays.asList(posts);
     }
 
-    @Subscribe("postsTable.viewUserInfo")
+  /*  @Subscribe("postsTable.viewUserInfo")
     public void onPostsTableViewUserInfo(Action.ActionPerformedEvent event) {
         Post post = postsTable.getSingleSelected();
         if (post == null || post.getUserId() == null) {
@@ -54,5 +64,5 @@ public class PostScreen extends Screen {
                 .build()
                 .withUserId(post.getUserId())
                 .show();
-    }
+    }*/
 }
